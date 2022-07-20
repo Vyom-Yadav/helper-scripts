@@ -38,7 +38,9 @@ private void parseArgumentAndExecute(String argument, String flag) {
         generatePitestReport(argument)
         addSuppressions(argument, flag)
         savePitReport(argument)
+        pushReportToGithub(argument)
         updateCoverageAndMutationThreshold(argument)
+        makeFinalPrToCheckstyle(argument)
     }
     else if (argument == "--list") {
         println "Supported profiles:"
@@ -78,6 +80,7 @@ private static void modifyPomPitestProfile(String profile) {
     println("Modifying pom.xml of ${profile}")
     final String command = '/home/vyom/IdeaProjects/helper-scripts/modifyPomPitestProfile.sh ' + profile
     final Process proc = command.execute()
+    proc.in.eachLine { println it }
     proc.waitFor()
 }
 
@@ -87,9 +90,9 @@ private static void modifyPomPitestProfile(String profile) {
  * @param profile the pitest profile to execute
  */
 private static void generatePitestReport(String profile) {
-    final String mavenCommand = 'mvn --no-transfer-progress -e -P"' +
-            profile + '" clean test-compile org.pitest:pitest-maven:mutationCoverage'
-    final Process proc = mavenCommand.execute()
+    println "Report generation started....."
+    final String command = "/home/vyom/IdeaProjects/helper-scripts/generatePitestReport.sh ${profile}"
+    final Process proc = command.execute()
     proc.in.eachLine { println it }
     proc.waitFor()
 }
@@ -158,9 +161,24 @@ private static void savePitReport(String profile) {
     proc2.waitFor()
 }
 
+private static void pushReportToGithub(String profile) {
+    String pushCommand = "/home/vyom/IdeaProjects/helper-scripts/pushReportToGithub.sh ${profile}"
+    Process proc = pushCommand.execute()
+    proc.in.eachLine { println it }
+    proc.waitFor()
+}
+
 private static void updateCoverageAndMutationThreshold(String profile) {
     String updateCommand = "/home/vyom/IdeaProjects/helper-scripts/readAndUpdateThreshold.sh ${profile}"
     Process proc = updateCommand.execute()
+    proc.in.eachLine { println it }
+    proc.waitFor()
+}
+
+private static void makeFinalPrToCheckstyle(String profile) {
+    String makeFinalPrCommand = "/home/vyom/IdeaProjects/helper-scripts/makePR.sh ${profile}"
+    Process proc = makeFinalPrCommand.execute()
+    proc.in.eachLine { println it }
     proc.waitFor()
 }
 

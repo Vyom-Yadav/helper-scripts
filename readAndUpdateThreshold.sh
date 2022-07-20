@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e
 
+cd /home/vyom/IdeaProjects/checkstyle/
 profile=$1
 threshold=$(grep -m 2 '<div class="coverage_bar"><div class="coverage_complete' /home/vyom/Desktop/pitest-all-latest/"$profile"/index.html | sed -e 's/[^0-9]*\([0-9]*\).*/\1/')
 # shellcheck disable=SC2206
